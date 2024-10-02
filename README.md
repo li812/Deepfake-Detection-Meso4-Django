@@ -13,6 +13,7 @@ This project implements a deepfake detection system using the Meso4 deep learnin
 - [Usage](#usage)
 - [Deep Learning Architecture](#deep-learning-architecture)
 - [Program Architecture](#program-architecture)
+- [Screenshots](#screenshots)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -70,12 +71,57 @@ To set up the project on your local machine, follow these steps:
 The Meso4 model is a convolutional neural network (CNN) specifically designed for deepfake detection. It utilizes a series of convolutional, batch normalization, and pooling layers to extract features from input images. The architecture is as follows:
 
 - **Input Layer**: Accepts images of shape (256, 256, 3).
-- **Convolutional Layers**: Four convolutional layers with increasing filter sizes, followed by batch normalization and max pooling layers to reduce dimensionality and extract relevant features.
+- **Convolutional Layers**: 
+  - Four convolutional layers with increasing filter sizes, followed by batch normalization and max pooling layers to reduce dimensionality and extract relevant features.
+  - Convolutional layer 1: 8 filters of size (3, 3)
+  - Convolutional layer 2: 8 filters of size (5, 5)
+  - Convolutional layer 3: 16 filters of size (5, 5)
+  - Convolutional layer 4: 16 filters of size (5, 5)
 - **Dropout Layers**: Applied to mitigate overfitting during training.
 - **Fully Connected Layer**: A dense layer that outputs the final classification score.
 - **Output Layer**: A sigmoid activation function outputs a probability score between 0 and 1, indicating the likelihood of a deepfake.
 
 The architecture allows the model to learn complex patterns and features, making it effective for distinguishing between genuine and manipulated images or videos.
+
+### Meso4 Class Implementation
+
+```python
+class Meso4(Classifier):
+    def __init__(self, lr=0.001):
+        self.model = self.init_model()
+        optimizer = Adam(learning_rate=lr)
+        self.model.compile(optimizer=optimizer, loss='mean_squared_error', metrics=['accuracy'])
+
+    def init_model(self):
+        x = Input(shape=(256, 256, 3))
+
+        # Model architecture
+        x1 = Conv2D(8, (3, 3), padding='same', activation='relu')(x)
+        x1 = BatchNormalization()(x1)
+        x1 = MaxPooling2D(pool_size=(2, 2), padding='same')(x1)
+
+        x2 = Conv2D(8, (5, 5), padding='same', activation='relu')(x1)
+        x2 = BatchNormalization()(x2)
+        x2 = MaxPooling2D(pool_size=(2, 2), padding='same')(x2)
+
+        x3 = Conv2D(16, (5, 5), padding='same', activation='relu')(x2)
+        x3 = BatchNormalization()(x3)
+        x3 = MaxPooling2D(pool_size=(2, 2), padding='same')(x3)
+
+        x4 = Conv2D(16, (5, 5), padding='same', activation='relu')(x3)
+        x4 = BatchNormalization()(x4)
+        x4 = MaxPooling2D(pool_size=(4, 4), padding='same')(x4)
+
+        # Output layer
+        y = Flatten()(x4)
+        y = Dropout(0.5)(y)
+        y = Dense(16)(y)
+        y = LeakyReLU(alpha=0.1)(y)
+        y = Dropout(0.5)(y)
+        y = Dense(1, activation='sigmoid')(y)
+
+        return Model(inputs=x, outputs=y)
+```
 
 ## Program Architecture
 
@@ -87,6 +133,11 @@ The application is structured using Django's Model-View-Template (MVT) architect
 - **Static Files**: CSS and JavaScript files that enhance the styling and interactivity of the application.
 
 The application also utilizes TensorFlow for deep learning tasks, with a well-defined workflow for loading models, preprocessing images, and making predictions.
+
+## Screenshots
+
+![Deepfake Detection Screenshot 1](Screenshots/Deepfake%20Detection1.png)
+![Deepfake Detection Screenshot 2](Screenshots/Deepfake%20Detection2.png)
 
 ## Contributing
 
