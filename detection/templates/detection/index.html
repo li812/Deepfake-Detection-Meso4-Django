@@ -1,0 +1,53 @@
+<!-- detection/templates/detection/index.html -->
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'detection/css/styles.css' %}">
+    <title>Deepfake Detector</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Deepfake Detection</h1>
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
+            {% csrf_token %}
+            <input type="file" name="file" accept="image/*,video/*" required>
+            <button type="submit">Check</button>
+        </form>
+
+        <!-- Loading Spinner -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+        </div>
+
+        {% if detected_frames %}
+            <h2>Detected Fake Frames</h2>
+            <div class="frame-grid">
+                {% for frame in detected_frames %}
+                    <div class="frame-item">
+                        <img src="{{ frame }}" alt="Detected Fake Frame" />
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No fake frames detected.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        form.onsubmit = function () {
+            loadingOverlay.style.display = 'flex'; // Show the loading overlay
+        };
+    </script>
+</body>
+
+
+</html>
